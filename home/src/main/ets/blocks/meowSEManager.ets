@@ -17,61 +17,62 @@ struct meowSEManager {
     new bunch_of_search_engines();
   @StorageLink('bunch_of_settings') bunch_of_settings: bunch_of_settings = new bunch_of_settings();
   @StorageLink('search_engine') search_engine: string = "";
+  @StorageLink('search_suggestion_url') search_suggestion_url?: string = "";
   @State @Watch('on_select') selected_index: number = -2; // -1 for system default
-  @State list_of_search_engines: search_engine[] = this.bunch_of_search_engines.list_of_search_engines;
+  @State list_of_search_engines: search_engine[] = this.bunch_of_search_engines.get_list_of_search_engines();
   @State default_pressing: boolean = false;
   @State UA_loaded_from_disk: boolean = false;
 
   build() {
     Column({ space: 2.5 }) {
-      Row() {
-        Row() {
-          Text($r('app.string.Settings_general_custom_ua_default'))// Title
-            .fontColor(!this.default_pressing ? $r('app.color.font_color_title') : $r('app.color.block_color'))
-            .fontWeight(!this.default_pressing ? FontWeight.Normal : FontWeight.Medium)
-            .padding({ left: 2 })
-            .fontSize(fontSize_Normal())
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .layoutWeight(1)
-            .margin(10)
-            .animation(animation_default())
-
-        }
-        .width("100%")
-        .height("100%")
-        .borderRadius(6)
-        .backgroundColor(this.default_pressing ? $r('app.color.font_color_title') :
-        $r('app.color.start_window_background'))
-        .animation(animation_default())
-
-      } // Default
-      .width("100%")
-      .border({
-        radius: 10,
-        width: 2,
-        color: -1 == this.selected_index ? $r('app.color.font_color_title') : "transparent",
-        // color: "red"
-      })
-      .alignRules({
-        middle: { anchor: "__container__", align: HorizontalAlign.Center },
-        top: { anchor: "__container__", align: VerticalAlign.Top }
-      })
-      .onTouch((event) => {
-        if (event.type == TouchType.Up) {
-          this.default_pressing = false;
-          // If touch ends
-        } else {
-          this.default_pressing = true;
-          // If touching
-        }
-      })
-      .onClick(() => {
-        this.selected_index = -1;
-        // Set UA
-      })
-      .height(46)
-      .animation(animation_default())
+      // Row() {
+      //   Row() {
+      //     Text($r('app.string.Settings_general_custom_ua_default'))// Title
+      //       .fontColor(!this.default_pressing ? $r('app.color.font_color_title') : $r('app.color.block_color'))
+      //       .fontWeight(!this.default_pressing ? FontWeight.Normal : FontWeight.Medium)
+      //       .padding({ left: 2 })
+      //       .fontSize(fontSize_Normal())
+      //       .maxLines(1)
+      //       .textOverflow({ overflow: TextOverflow.Ellipsis })
+      //       .layoutWeight(1)
+      //       .margin(10)
+      //       .animation(animation_default())
+      //
+      //   }
+      //   .width("100%")
+      //   .height("100%")
+      //   .borderRadius(6)
+      //   .backgroundColor(this.default_pressing ? $r('app.color.font_color_title') :
+      //   $r('app.color.start_window_background'))
+      //   .animation(animation_default())
+      //
+      // } // Default
+      // .width("100%")
+      // .border({
+      //   radius: 10,
+      //   width: 2,
+      //   color: -1 == this.selected_index ? $r('app.color.font_color_title') : "transparent",
+      //   // color: "red"
+      // })
+      // .alignRules({
+      //   middle: { anchor: "__container__", align: HorizontalAlign.Center },
+      //   top: { anchor: "__container__", align: VerticalAlign.Top }
+      // })
+      // .onTouch((event) => {
+      //   if (event.type == TouchType.Up) {
+      //     this.default_pressing = false;
+      //     // If touch ends
+      //   } else {
+      //     this.default_pressing = true;
+      //     // If touching
+      //   }
+      // })
+      // .onClick(() => {
+      //   this.selected_index = -1;
+      //   // Set UA
+      // })
+      // .height(46)
+      // .animation(animation_default())
 
       ForEach(
         this.list_of_search_engines,
@@ -120,8 +121,11 @@ struct meowSEManager {
     if (this.selected_index <= -1) {
       // If set back to default
       this.search_engine = "https://bing.com/search?q=%s";
+      this.search_suggestion_url = "https://api.bing.com/qsml.aspx?Market=zh-CN&q=%s";
     } else {
-      this.search_engine = this.bunch_of_search_engines.list_of_search_engines[this.selected_index].content;
+      let current_search_engine = this.bunch_of_search_engines.get_search_engine(this.selected_index);
+      this.search_engine = current_search_engine.content
+      this.search_suggestion_url = current_search_engine.suggest;
     }
     this.save_search_engines_to_kv_store();
     this.sync_list_of_search_engines();
@@ -137,7 +141,7 @@ struct meowSEManager {
   // Data utils
 
   sync_list_of_search_engines() {
-    this.list_of_search_engines = this.bunch_of_search_engines.list_of_search_engines;
+    this.list_of_search_engines = this.bunch_of_search_engines.get_list_of_search_engines();
   }
 
   save_search_engines_to_kv_store() {
@@ -155,7 +159,7 @@ struct meowSEButton {
   @Prop my_index: number;
   @StorageLink('bunch_of_search_engines') bunch_of_search_engines: bunch_of_search_engines =
     new bunch_of_search_engines();
-  @State my_ua: search_engine = this.bunch_of_search_engines.list_of_search_engines[this.my_index];
+  @State my_ua: search_engine = this.bunch_of_search_engines.get_search_engine(this.my_index);
   @State my_label: string = this.my_ua.label;
   @State my_content: string = this.my_ua.content;
   // statuses
@@ -191,7 +195,7 @@ struct meowSEButton {
               .fontSize(fontSize_Large())
               .fontColor([$r('app.color.block_color')])
           } // Edit Icon
-          .scrollable(ScrollDirection.Horizontal)
+          .scrollable(this.my_ua.built_in? ScrollDirection.None : ScrollDirection.Horizontal)
           .width(this.press_timing_ok ? 22 : 0)
           .margin({ left: this.press_timing_ok ? 10 : 0 })
           .animation(animation_default())
@@ -215,7 +219,7 @@ struct meowSEButton {
           }
         })
         .onClick(() => {
-          if (this.press_timing_ok) {
+          if (this.press_timing_ok && !this.my_ua.built_in) {
             this.delete_confirm = 0;
             this.editing = !this.editing;
             return;

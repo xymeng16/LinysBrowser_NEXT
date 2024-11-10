@@ -17,6 +17,10 @@
       "value": "For web browsing"
     },
     {
+      "name": "permission_reason_GET_NETWORK_INFO",
+      "value": "For network status detection"
+    },
+    {
       "name": "Index_tabs_title",
       "value": "Tabs"
     },

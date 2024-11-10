@@ -6,6 +6,7 @@ import { animation_default } from '../hosts/bunch_of_defaults';
 import meowTitleBar from '../blocks/meowTitleBar';
 import { bunch_of_settings } from '../hosts/bunch_of_settings';
 import { bunch_of_tabs } from '../hosts/bunch_of_tabs';
+import { rcp } from '@kit.RemoteCommunicationKit';
 
 @Entry
 @Component
@@ -51,6 +52,8 @@ struct Index {
   @StorageLink('current_sub_tab_index') current_sub_tab_index: number = -1;
   @StorageLink('current_accessForward') current_accessForward: boolean = false;
   @StorageLink('current_accessBackward') current_accessBackward: boolean = false;
+  // Global RCP session
+  @StorageLink('rcp') rcp_session: rcp.Session = rcp.createSession();
   // Settings
   @State @Watch('on_title_bar_position_change') settings_title_bar_position: string = "";
   @State sys_back_to_access_backward: boolean = false;
@@ -102,11 +105,6 @@ struct Index {
 
   build() {
     Column() {
-      Row()// Top Bar Avoid
-        .width("100%")
-        .height(px2vp(this.topAvoidHeight))
-        .backgroundColor($r('app.color.block_color'))
-        .animation(animation_default())
 
       RelativeContainer() {
 
@@ -208,19 +206,18 @@ struct Index {
       .layoutWeight(1)
       .width("100%")
       .animation(animation_default())
-
-      Row()// Bottom Bar Avoid
-        .width("100%")
-        .height(px2vp(this.bottomAvoidHeight))
-        .animation(animation_default())
-        .backgroundColor(this.settings_title_bar_position == "bottom" ?
-          "transparent" : $r('app.color.block_color'))
     }
+    .padding({
+      top: px2vp(this.topAvoidHeight),
+      bottom: this.settings_title_bar_position === "bottom" ? px2vp(this.bottomAvoidHeight) : 0
+      // bottom: this.is_search_input_typing? 0 : px2vp(this.bottomAvoidHeight)
+    })
     .height("100%")
     .width("100%")
     .animation(animation_default())
-    .backgroundColor(this.settings_title_bar_position == "bottom" ?
-    $r('app.color.block_color') : $r('app.color.start_window_background'))
+    .backgroundColor($r('app.color.block_color'))
+    // .backgroundColor(this.settings_title_bar_position == "bottom" ?
+    // $r('app.color.block_color') : $r('app.color.start_window_background'))
     .onAppear(() => {
       console.log("[Meow][Index] Home Index READY")
     })

@@ -191,6 +191,7 @@ struct meowWebView {
       }, (item: tab_label) => item.timestamp.toString())
 
     }
+    .expandSafeArea([SafeAreaType.KEYBOARD])
     .width("100%")
     .height("100%")
     .onAppear(() => {

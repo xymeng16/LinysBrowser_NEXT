@@ -58,6 +58,16 @@
             "HomeAbility"
           ]
         }
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+        "reason": "$string:permission_reason_GET_NETWORK_INFO",
+        "usedScene": {
+          "when": "inuse",
+          "abilities": [
+            "HomeAbility"
+          ]
+        }
       }
 //      {
 //        "name" : "ohos.permission.READ_PASTEBOARD",

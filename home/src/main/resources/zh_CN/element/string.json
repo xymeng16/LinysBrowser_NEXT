@@ -17,6 +17,10 @@
       "value": "用于网页浏览"
     },
     {
+      "name": "permission_reason_GET_NETWORK_INFO",
+      "value": "用于获取当前网络状态"
+    },
+    {
       "name": "Index_tabs_title",
       "value": "标签页"
     },

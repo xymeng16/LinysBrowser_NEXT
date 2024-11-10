@@ -31,6 +31,8 @@ struct meowTitleBar {
   @StorageProp('tablet_mode') tablet_mode: boolean = false;
   @StorageProp('screen_width') screen_width: number = 0;
   @StorageProp('screen_height') screen_height: number = 0;
+  @StorageLink('topAvoidHeight') topAvoidHeight: number = 1;
+  @StorageLink('bottomAvoidHeight') bottomAvoidHeight: number = 1;
   @StorageProp('universal_new_download_gateway') @Watch('on_download_start') uni_new_download_gateway: string = "";
   @Link bar_height: number;
   @Link webViews_ready: boolean;
@@ -402,6 +404,9 @@ struct meowTitleBar {
       }
 
     } // Title Bars
+    .padding({
+      bottom: this.is_search_input_typing && this.settings_title_bar_position === "bottom" ? this.bottomAvoidHeight: 0
+    })
     .allowDrop([uniformTypeDescriptor.UniformDataType.TEXT,
       uniformTypeDescriptor.UniformDataType.HYPERLINK,
       uniformTypeDescriptor.UniformDataType.PLAIN_TEXT])
